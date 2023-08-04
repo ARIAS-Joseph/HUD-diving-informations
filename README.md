@@ -9,7 +9,7 @@ It's necessary to run command :
 python3 CreateBgForVideoWithFFMEG.py
 ```
 
-For 1h of .csv data, a 6 Go video his created so you need to have storage.
+For 1h of .csv data, a 6 Go video is created so you need to have storage.
 
 For now, parameters aren't dynamicals, it's necesary to modify the source.
 
