@@ -2,6 +2,8 @@
 
 Software for adding a HUD to scuba diving video. HUD data is retrieved from the dive computer via Subsurface software in .csv format. Thanks to Luc (https://www.youtube.com/@lpr3233) for his video and datas !
 
+Do not hesitate to send comments or screenshots on my Mastodon (https://mastodon.social/@joseph_arias) ! 
+
 ## How to use ?
 
 It's necessary to run command :
