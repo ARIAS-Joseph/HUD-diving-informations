@@ -6,15 +6,17 @@ Software for adding a HUD to scuba diving video. HUD data is retrieved from the 
 
 It's necessary to run command :
 ```
-
+python3 CreateBgForVideoWithFFMEG.py
 ```
 
-For 1h it's 6 Go of video.
+For 1h of .csv data, a 6 Go video his created so you need to have storage.
+
+For now, parameters aren't dynamicals, it's necesary to modify the source.
 
 ## PIP install
 
 ```
-pip install -U kaleido
+pip install -U plotly
 ```
 
 ## My Note
@@ -78,4 +80,8 @@ ffmpeg -ss 00:02:28 -to 00:03:00 -i videomergecompress.mp4  -async 1  videomerge
 ## Doc used 
 
 (https://plotly.com/python/indicator/)
+
+## Licence
+
+Free but I like sushis !
 
