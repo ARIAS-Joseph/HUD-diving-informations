@@ -13,14 +13,16 @@ from math import pi, sin, cos
 import plotly.graph_objects as go
 from plotly.graph_objects import Layout
 import tkinter as tk
+from sys import platform
 
 # import gauges
 
-window = tk.TK()
-window.title('HUD Diving information')
+if platform == "win32":
+    window = tk.Tk()
+    window.title('HUD Diving information')
 
-fichier = tk.Label(window, text='Choose a file')
-fichier.bind(tk.filedialog.askopenfile(mode='rb', title='Choose a file'))
+    fichier = tk.Label(window, text='Choose a file')
+    #fichier.bind(tk.filedialog.askopenfile(mode='rb', title='Choose a file'))
 
 start_time = time.time()
 
@@ -62,10 +64,11 @@ if not os.path.exists(my_tempFolder):
 
 # os.system('rm -rf ./video.webm');
 print("1-Clean")
-os.system('rm -rf ./video.mp4')
-os.system('rm -rf ./videomerge.mp4')
-os.system('rm -rf ./videomergecompress.mp4')
-os.system('rm -rf ./videocompress.mp4')
+if platform == "linux" or platform == "linux2":
+    os.system('rm -rf ./video.mp4')
+    os.system('rm -rf ./videomerge.mp4')
+    os.system('rm -rf ./videomergecompress.mp4')
+    os.system('rm -rf ./videocompress.mp4')
 
 # Step 1 :
 # Find min & max of value
@@ -344,4 +347,6 @@ os.system(my_ffmpeg+' -i '+my_videooutput +
           ' -vcodec libx265 -crf 28 '+my_videooutputcompress)
 
 print("End")
-window.mainloop()
+
+if platform == "win32":
+    window.mainloop()
