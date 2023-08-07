@@ -1,13 +1,19 @@
 #
 # ARIAS Joseph
-#
-# Release V2
+# 
+# Release V2.01 
 #   - Support Windows (Test on Windows 10) and Linux (Test on Ubuntu & Kali)
-# For Windows
-#   - Install FFMPEG : https://www.gyan.dev/ffmpeg/builds/ or see
-#                      https://ffmpeg.org/download.html#build-windows
+#     --------------------------------------
+#     - My processor : Intel64 Family 6 Model 85 Stepping 7, GenuineIntel
+#     - My OS : Windows
+#     - My OS Relase : Windows-10-10.0.19044-SP0
+#     - My Python Version :3.11.4 (tags/v3.11.4:d2340ef, Jun  7 2023, 05:45:37) [MSC v.1934 64 bit (AMD64)]
+#     - My FFMPEG : ffmpeg version 2023-07-19-git-efa6cec759-full_build-www.gyan.dev Copyright (c) 2000-2023 the FFmpeg developers
+#     --------------------------------------
+# For Windows 
+#   - Install FFMPEG : https://www.gyan.dev/ffmpeg/builds/ or see https://ffmpeg.org/download.html#build-windows
 #   - And also install with PIP :
-#       - python -m pip install plotly
+#       - python -m pip install plotly 
 #       - python -m pip install kaleido
 #       - pip install Pillow
 #
@@ -22,9 +28,9 @@ from math import pi, sin, cos
 import plotly.graph_objects as go
 from plotly.graph_objects import Layout
 import platform
-import sys
+import sys 
 
-if platform.system() == "Windows":
+if platform.system()  == "Windows":
     import tkinter as tk
 
 # import gauges
@@ -34,40 +40,48 @@ if platform.system() == "Windows":
     window.title('HUD Diving information')
 
     fichier = tk.Label(window, text='Choose a file')
-    # fichier.bind(tk.filedialog.askopenfile(mode='rb', title='Choose a file'))
+    #fichier.bind(tk.filedialog.askopenfile(mode='rb', title='Choose a file'))
 
-start_time = time.time()
+start_time = int(time.time())
 
 # Init
 my_file = 'test.csv'
 
-if platform.system() == "Windows":
+if platform.system()  == "Windows":
     my_tempFolder = './tmpPNG'
-else:
+else :
     my_tempFolder = 'tmpPNG'
 
-if platform.system() == "Windows":
+if platform.system()  == "Windows":
     my_videooutput = './video.mp4'
     my_videoinput = './TestVideo.mp4'
     my_videooutputmerge = './videomerge.mp4'
     my_videooutputmergecompress = './videomergecompress.mp4'
     my_videooutputcompress = './videocompress.mp4'
-else:
+    my_time_file = "./Time.png"
+    my_pression_file = "./Pression.png"
+    my_depth_file = "./Profondeur.png"
+    my_temp_file = "./Temp.png"
+else : 
     my_videooutput = 'video.mp4'
     my_videoinput = 'TestVideo.mp4'
     my_videooutputmerge = 'videomerge.mp4'
     my_videooutputmergecompress = 'videomergecompress.mp4'
     my_videooutputcompress = 'videocompress.mp4'
+    my_time_file = "Time.png"
+    my_pression_file = "Pression.png"
+    my_depth_file = "Profondeur.png"
+    my_temp_file = "Temp.png"
 
 my_font = "./FreeMono.ttf"
 
-if platform.system() == "Windows":
-    my_ffmpeg = 'C:\ffmpeg\bin\ffmpeg.exe'
-elif platform.system() == "Darwin":
+if platform.system()  == "Windows":
+    my_ffmpeg = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
+elif platform.system()  == "Darwin":
     my_ffmpeg = '/usr/local/bin/ffmpeg'
-else:
+else :
     my_ffmpeg = '/usr/bin/ffmpeg'
-
+    
 my_num_depth = 0
 my_h = 1280
 my_w = 720
@@ -93,12 +107,14 @@ if not os.path.exists(my_tempFolder):
 # Get information for support.
 
 print("--------------------------------------")
-print("My processor : %s " % (platform.processor()))
-print("My OS : "+platform.system())
+print("My processor : %s "%(platform.processor()));
+print("My OS : "+platform.system());
 print("My OS Relase : "+platform.platform())
 print("My Python Version :"+sys.version)
-print("My FFMPEG")
+print("My FFMPEG :")
 os.system(my_ffmpeg+" -version ")
+print("My access to Time File : "+str(os.access(my_time_file, os.W_OK)))
+print("My access to Pression File : "+str(os.access(my_pression_file, os.W_OK)))
 print("--------------------------------------")
 
 # Step 0 :
@@ -239,7 +255,7 @@ with open(my_file) as csv_file:
                         'value': int(float(last_pressure))}}))
             fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", font={
                               'color': my_color, 'family': my_familly})
-            fig.write_image("Pression.png", scale=my_scale)
+            fig.write_image(my_pression_file, scale=my_scale)
 
             # Time
             fig = go.Figure(go.Indicator(
@@ -250,7 +266,7 @@ with open(my_file) as csv_file:
             ))
             fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", font={
                               'color': my_color, 'family': my_familly})
-            fig.write_image("Time.png", scale=my_scale)
+            fig.write_image(my_time_file, scale=my_scale)
 
             # Depth
             layout = Layout(plot_bgcolor='rgba(0,0,0,0)')
@@ -273,7 +289,7 @@ with open(my_file) as csv_file:
             fig.update_layout(xaxis={'range': [0, my_num_depth]})
             fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", font={
                               'color': my_color, 'family': my_familly})
-            fig.write_image("Profondeur.png", scale=my_scale_2)
+            fig.write_image(my_depth_file, scale=my_scale_2)
 
             # Temp
             fig = go.Figure(go.Indicator(
@@ -285,18 +301,18 @@ with open(my_file) as csv_file:
                 title={'text': "Temp", 'font': {'size': my_font_size_3}}))
             fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", font={
                               'color': my_color, 'family': my_familly})
-            fig.write_image("Temp.png", scale=my_scale)
+            fig.write_image(my_temp_file, scale=my_scale)
 
-            foreground = Image.open("Pression.png")
+            foreground = Image.open(my_pression_file)
             img.paste(foreground, (0, 100), foreground)
 
-            foreground = Image.open("Time.png")
+            foreground = Image.open(my_time_file)
             img.paste(foreground, (0, -40), foreground)
 
-            foreground = Image.open("Profondeur.png")
+            foreground = Image.open(my_depth_file)
             img.paste(foreground, (-30, my_w-350), foreground)
 
-            foreground = Image.open("Temp.png")
+            foreground = Image.open(my_temp_file)
             img.paste(foreground, (my_h-350, my_w-150), foreground)
 
             filename = my_tempFolder+'/pic-%04d.png' % line_count
@@ -319,7 +335,7 @@ with open(my_file) as csv_file:
                 ))
                 fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", font={
                                   'color': my_color, 'family': my_familly})
-                fig.write_image("Time.png", scale=my_scale)
+                fig.write_image(my_time_file, scale=my_scale)
 
                 # draw1 = ImageDraw.Draw(img)
                 # draw1.text((10, 0), "Dive number : "+row[0]+" ", font=fnt,
@@ -339,16 +355,16 @@ with open(my_file) as csv_file:
                 # font=fnt, fill=(25, 25, 75, 75), stroke_width=4,
                 # stroke_fill="black")
 
-                foreground = Image.open("Pression.png")
+                foreground = Image.open(my_pression_file)
                 img.paste(foreground, (0, 100), foreground)
 
-                foreground = Image.open("Time.png")
+                foreground = Image.open(my_time_file)
                 img.paste(foreground, (0, -40), foreground)
 
-                foreground = Image.open("Profondeur.png")
+                foreground = Image.open(my_depth_file)
                 img.paste(foreground, (-30, my_w-350), foreground)
 
-                foreground = Image.open("Temp.png")
+                foreground = Image.open(my_temp_file)
                 img.paste(foreground, (my_h-350, my_w-150), foreground)
 
                 filename = my_tempFolder+'/pic-%04d.png' % line_count
@@ -366,8 +382,7 @@ with open(my_file) as csv_file:
 
 # Good test :
 print("4-Create video with picture")
-my_command = my_ffmpeg+' -framerate 1 -start_number '+str(my_start_time)+'  -s ' + str(
-    my_h) + 'x'+str(my_w)+' -i ' + my_tempFolder + '/pic-%04d.png -c:v png -r 30 ' + my_videooutput
+my_command = my_ffmpeg+' -framerate 1 -start_number '+str(my_start_time)+'  -s '+ str(my_h) + 'x'+str(my_w)+' -i ' + my_tempFolder +'/pic-%04d.png -c:v png -r 30 ' + my_videooutput;
 print("The command "+my_command)
 os.system(my_command)
 
@@ -389,9 +404,9 @@ os.system(my_ffmpeg+' -i '+my_videooutputmerge +
 os.system(my_ffmpeg+' -i '+my_videooutput +
           ' -vcodec libx265 -crf 28 '+my_videooutputcompress)
 
-end_time = time.time()
-
-print("End (%d sec)" % (end_time-start_time))
+end_time = int(time.time())
 
 if platform.system() == "Windows":
     window.mainloop()
+
+print("End (%d sec)"% (end_time-start_time))
