@@ -1,6 +1,15 @@
-
 #
 # ARIAS Joseph
+#
+# Release V2
+#   - Support Windows (Test on Windows 10) and Linux (Test on Ubuntu & Kali)
+# For Windows
+#   - Install FFMPEG : https://www.gyan.dev/ffmpeg/builds/ or see
+#                      https://ffmpeg.org/download.html#build-windows
+#   - And also install with PIP :
+#       - python -m pip install plotly
+#       - python -m pip install kaleido
+#       - pip install Pillow
 #
 
 from PIL import Image, ImageDraw, ImageFont
@@ -12,32 +21,53 @@ import time
 from math import pi, sin, cos
 import plotly.graph_objects as go
 from plotly.graph_objects import Layout
-import tkinter as tk
-from sys import platform
+import platform
+import sys
+
+if platform.system() == "Windows":
+    import tkinter as tk
 
 # import gauges
 
-if platform == "win32":
+if platform.system() == "Windows":
     window = tk.Tk()
     window.title('HUD Diving information')
 
     fichier = tk.Label(window, text='Choose a file')
-    #fichier.bind(tk.filedialog.askopenfile(mode='rb', title='Choose a file'))
+    # fichier.bind(tk.filedialog.askopenfile(mode='rb', title='Choose a file'))
 
 start_time = time.time()
 
 # Init
 my_file = 'test.csv'
-my_tempFolder = 'tmpPNG'
 
-my_videooutput = 'video.mp4'
-my_videoinput = 'TestVideo.mp4'
-my_videooutputmerge = 'videomerge.mp4'
-my_videooutputmergecompress = 'videomergecompress.mp4'
-my_videooutputcompress = 'videocompress.mp4'
+if platform.system() == "Windows":
+    my_tempFolder = './tmpPNG'
+else:
+    my_tempFolder = 'tmpPNG'
+
+if platform.system() == "Windows":
+    my_videooutput = './video.mp4'
+    my_videoinput = './TestVideo.mp4'
+    my_videooutputmerge = './videomerge.mp4'
+    my_videooutputmergecompress = './videomergecompress.mp4'
+    my_videooutputcompress = './videocompress.mp4'
+else:
+    my_videooutput = 'video.mp4'
+    my_videoinput = 'TestVideo.mp4'
+    my_videooutputmerge = 'videomerge.mp4'
+    my_videooutputmergecompress = 'videomergecompress.mp4'
+    my_videooutputcompress = 'videocompress.mp4'
 
 my_font = "./FreeMono.ttf"
-my_ffmpeg = '/usr/bin/ffmpeg'
+
+if platform.system() == "Windows":
+    my_ffmpeg = 'C:\ffmpeg\bin\ffmpeg.exe'
+elif platform.system() == "Darwin":
+    my_ffmpeg = '/usr/local/bin/ffmpeg'
+else:
+    my_ffmpeg = '/usr/bin/ffmpeg'
+
 my_num_depth = 0
 my_h = 1280
 my_w = 720
@@ -49,6 +79,7 @@ my_font_size_2 = 40
 my_font_size_3 = 50
 my_color = "white"
 my_familly = "Arial"
+# Most important parameter !!!
 my_start_time = 1
 
 List_Depth = []
@@ -59,12 +90,23 @@ last_pressure = '?'
 if not os.path.exists(my_tempFolder):
     os.makedirs(my_tempFolder)
 
+# Get information for support.
+
+print("--------------------------------------")
+print("My processor : %s " % (platform.processor()))
+print("My OS : "+platform.system())
+print("My OS Relase : "+platform.platform())
+print("My Python Version :"+sys.version)
+print("My FFMPEG")
+os.system(my_ffmpeg+" -version ")
+print("--------------------------------------")
+
 # Step 0 :
 # remove previous Video
 
 # os.system('rm -rf ./video.webm');
 print("1-Clean")
-if platform == "linux" or platform == "linux2":
+if platform.system() == "Linux" or platform.system() == "linux" or platform.system() == "linux2":
     os.system('rm -rf ./video.mp4')
     os.system('rm -rf ./videomerge.mp4')
     os.system('rm -rf ./videomergecompress.mp4')
@@ -324,9 +366,10 @@ with open(my_file) as csv_file:
 
 # Good test :
 print("4-Create video with picture")
-os.system(my_ffmpeg+' -framerate 1 -start_number '+str(my_start_time)+'  -s '
-          + str(my_h) + 'x'+str(my_w)+' -i ' + my_tempFolder +
-          '/pic-%04d.png -c:v png -r 30 ' + my_videooutput)
+my_command = my_ffmpeg+' -framerate 1 -start_number '+str(my_start_time)+'  -s ' + str(
+    my_h) + 'x'+str(my_w)+' -i ' + my_tempFolder + '/pic-%04d.png -c:v png -r 30 ' + my_videooutput
+print("The command "+my_command)
+os.system(my_command)
 
 # Clean space
 # os.system('rm -rf ./tmpPNG');
@@ -346,7 +389,9 @@ os.system(my_ffmpeg+' -i '+my_videooutputmerge +
 os.system(my_ffmpeg+' -i '+my_videooutput +
           ' -vcodec libx265 -crf 28 '+my_videooutputcompress)
 
-print("End")
+end_time = time.time()
 
-if platform == "win32":
+print("End (%d sec)" % (end_time-start_time))
+
+if platform.system() == "Windows":
     window.mainloop()
