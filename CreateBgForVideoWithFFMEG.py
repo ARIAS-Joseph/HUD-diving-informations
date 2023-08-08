@@ -1,7 +1,7 @@
 #
 # ARIAS Joseph
-# 
-# Release V2.01 
+#
+# Release V2.06
 #   - Support Windows (Test on Windows 10) and Linux (Test on Ubuntu & Kali)
 #     --------------------------------------
 #     - My processor : Intel64 Family 6 Model 85 Stepping 7, GenuineIntel
@@ -10,12 +10,15 @@
 #     - My Python Version :3.11.4 (tags/v3.11.4:d2340ef, Jun  7 2023, 05:45:37) [MSC v.1934 64 bit (AMD64)]
 #     - My FFMPEG : ffmpeg version 2023-07-19-git-efa6cec759-full_build-www.gyan.dev Copyright (c) 2000-2023 the FFmpeg developers
 #     --------------------------------------
-# For Windows 
+# For Windows
 #   - Install FFMPEG : https://www.gyan.dev/ffmpeg/builds/ or see https://ffmpeg.org/download.html#build-windows
 #   - And also install with PIP :
-#       - python -m pip install plotly 
+#       - python -m pip install plotly
 #       - python -m pip install kaleido
 #       - pip install Pillow
+#
+# For Windows : Don't put folder in OneDrive ... too many files and too big.
+#
 #
 
 from PIL import Image, ImageDraw, ImageFont
@@ -24,13 +27,24 @@ import os
 import subprocess
 from datetime import datetime
 import time
-from math import pi, sin, cos
 import plotly.graph_objects as go
 from plotly.graph_objects import Layout
 import platform
-import sys 
+import sys
+import types
+import argparse
 
-if platform.system()  == "Windows":
+
+def imports():
+    for name, val in globals().items():
+        if isinstance(val, types.ModuleType):
+            try:
+                yield val.__name__, val.__version__
+            except:
+                yield val.__name__, 'no version available for built ins'
+
+
+if platform.system() == "Windows":
     import tkinter as tk
 
 # import gauges
@@ -40,34 +54,48 @@ if platform.system() == "Windows":
     window.title('HUD Diving information')
 
     fichier = tk.Label(window, text='Choose a file')
-    #fichier.bind(tk.filedialog.askopenfile(mode='rb', title='Choose a file'))
+    # fichier.bind(tk.filedialog.askopenfile(mode='rb', title='Choose a file'))
 
+print("-----------------------START-------------------------------")
 start_time = int(time.time())
 
 # Init
 my_file = 'test.csv'
+my_path = os.getcwd()
 
-if platform.system()  == "Windows":
+if platform.system() == "Windows":
     my_tempFolder = './tmpPNG'
-else :
+else:
     my_tempFolder = 'tmpPNG'
 
-if platform.system()  == "Windows":
-    my_videooutput = './video.mp4'
-    my_videoinput = './TestVideo.mp4'
-    my_videooutputmerge = './videomerge.mp4'
-    my_videooutputmergecompress = './videomergecompress.mp4'
-    my_videooutputcompress = './videocompress.mp4'
-    my_time_file = "./Time.png"
-    my_pression_file = "./Pression.png"
-    my_depth_file = "./Profondeur.png"
-    my_temp_file = "./Temp.png"
-else : 
+if platform.system() == "Windows":
+    # my_path2 = my_path.replace(' ', '\ ')
+    # my_path2 = my_path2.replace('-', '\-')
+    my_path2 = my_path
+    my_videooutput = '"'+my_path2+'\\video.mp4'+'"'
+    my_videoinput = '"'+my_path2+'\\Luccut.mp4'+'"'
+    my_videooutputmerge = '"'+my_path2+'\\videomerge.mp4'+'"'
+    my_videooutputmergecompress = '"'+my_path2+'\\videomergecompress.mp4'+'"'
+    my_videooutputcompress = '"'+my_path2+'\\videocompress.mp4'+'"'
+    my_videooutput2 = my_path2+'\\video.mp4'
+    my_videoinput2 = my_path2+'\\Luccut.mp4'
+    my_videooutputmerge2 = my_path2+'\\videomerge.mp4'
+    my_videooutputmergecompress2 = my_path2+'\\videomergecompress.mp4'
+    my_videooutputcompress2 = my_path2+'\\videocompress.mp4'
+    my_time_file = my_path+"\\Time.png"
+    my_pression_file = my_path+"\\Pression.png"
+    my_depth_file = my_path+"\\Profondeur.png"
+    my_temp_file = my_path+"\\Temp.png"
+else:
     my_videooutput = 'video.mp4'
-    my_videoinput = 'TestVideo.mp4'
+    my_videoinput = 'Luccut.mp4'
     my_videooutputmerge = 'videomerge.mp4'
     my_videooutputmergecompress = 'videomergecompress.mp4'
     my_videooutputcompress = 'videocompress.mp4'
+    my_videoinput2 = 'TestVideo.mp4'
+    my_videooutputmerge2 = 'videomerge.mp4'
+    my_videooutputmergecompress2 = 'videomergecompress.mp4'
+    my_videooutputcompress2 = 'videocompress.mp4'
     my_time_file = "Time.png"
     my_pression_file = "Pression.png"
     my_depth_file = "Profondeur.png"
@@ -75,14 +103,15 @@ else :
 
 my_font = "./FreeMono.ttf"
 
-if platform.system()  == "Windows":
+if platform.system() == "Windows":
     my_ffmpeg = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
-elif platform.system()  == "Darwin":
+elif platform.system() == "Darwin":
     my_ffmpeg = '/usr/local/bin/ffmpeg'
-else :
+else:
     my_ffmpeg = '/usr/bin/ffmpeg'
-    
+
 my_num_depth = 0
+
 my_h = 1280
 my_w = 720
 my_scale = 0.5
@@ -96,6 +125,36 @@ my_familly = "Arial"
 # Most important parameter !!!
 my_start_time = 1
 
+
+parser = argparse.ArgumentParser(description="HUD Diving information",
+                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-H", "--height", default=1280,
+                    action="store_true", help="height")
+parser.add_argument("-W", "--witdh", default=720,
+                    action="store_true", help="with")
+parser.add_argument("-S", "--scale", default=0.5,
+                    action="store_true", help="scale")
+parser.add_argument("-T", "--scale2", default=0.8,
+                    action="store_true", help="scale2")
+parser.add_argument("-F", "--frequency", default=9,
+                    action="store_true", help="ferquency")
+parser.add_argument("-A", "--font", default=60,
+                    action="store_true", help="font")
+parser.add_argument("-B", "--font2", default=40,
+                    action="store_true", help="font2")
+parser.add_argument("-C", "--font3", default=50,
+                    action="store_true", help="font3")
+parser.add_argument("-D", "--color", default="white",
+                    action="store_true", help="color")
+parser.add_argument("-E", "--familly", default="Arial",
+                    action="store_true", help="familly")
+parser.add_argument("-SC", "--source_csv", default="test.csv",
+                    action="store_true", help="Source location")
+parser.add_argument("-DV", "--destination_video", default="videomerge.mp4",
+                    action="store_true", help="Destination location")
+args = parser.parse_args()
+# config = vars(args)
+
 List_Depth = []
 
 last_temp = '?'
@@ -106,17 +165,24 @@ if not os.path.exists(my_tempFolder):
 
 # Get information for support.
 
-print("--------------------------------------")
-print("My processor : %s "%(platform.processor()));
-print("My OS : "+platform.system());
+print("---------------------------------------------------------------")
+print("-----------------ADD THIS IN CASE OF ISSUE---------------------")
+print("My processor : %s " % (platform.processor()))
+print("My OS : "+platform.system())
 print("My OS Relase : "+platform.platform())
 print("My Python Version :"+sys.version)
 print("My FFMPEG :")
 os.system(my_ffmpeg+" -version ")
 print("My access to Time File : "+str(os.access(my_time_file, os.W_OK)))
 print("My access to Pression File : "+str(os.access(my_pression_file, os.W_OK)))
-print("--------------------------------------")
-
+if os.access(my_pression_file, os.W_OK) == False:
+    print("WARNING : Not possible to write file ... change folder please ")
+print("My Lib used :")
+print(list(imports()))
+print("My Conf :")
+# print(config)
+print("-------------------------THANK--------------------------")
+print("--------------------------------------------------------")
 # Step 0 :
 # remove previous Video
 
@@ -241,7 +307,7 @@ with open(my_file) as csv_file:
                 gauge={
                     'axis': {'range': [None, 200], 'tickwidth': 1,
                              'tickcolor': my_color},
-                    'bar': {'color': my_color},
+                    'bar': {'color': "purple"},
                     'bgcolor': "rgba(0,0,0,0)",
                     'borderwidth': 2,
                     'bordercolor': "gray",
@@ -323,14 +389,14 @@ with open(my_file) as csv_file:
             i = 1
             while i <= my_frequency:
                 img = Image.new('RGBA', (my_h, my_w), (255, 0, 0, 0))
-                time = row[3]
-                time = time[:-1] + str(i)
+                my_time = row[3]
+                my_time = my_time[:-1] + str(i)
 
                 fig = go.Figure(go.Indicator(
                     mode="number",
                     value=line_count,
                     domain={'x': [0, 1], 'y': [0, 1]},
-                    title={'text': 'Time '+time,
+                    title={'text': 'Time '+my_time,
                            'font': {'size': my_font_size}}
                 ))
                 fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", font={
@@ -382,31 +448,45 @@ with open(my_file) as csv_file:
 
 # Good test :
 print("4-Create video with picture")
-my_command = my_ffmpeg+' -framerate 1 -start_number '+str(my_start_time)+'  -s '+ str(my_h) + 'x'+str(my_w)+' -i ' + my_tempFolder +'/pic-%04d.png -c:v png -r 30 ' + my_videooutput;
-print("The command "+my_command)
+my_command = my_ffmpeg+' -framerate 1 -start_number '+str(my_start_time)+'  -s ' + str(
+    my_h) + 'x'+str(my_w)+' -i ' + my_tempFolder + '/pic-%04d.png  -y -c:v png -r 1 ' + my_videooutput
+print("The command (1) : "+my_command)
 os.system(my_command)
 
 # Clean space
 # os.system('rm -rf ./tmpPNG');
 
 print("5-Merge two video")
-
-os.system(my_ffmpeg+' -i '+my_videoinput+' -i ' + my_videooutput +
-          ' -filter_complex "  [0:v]setpts=PTS-STARTPTS, scale='+str(my_h) +
-          'x' + str(my_w)+'[top]; [1:v]setpts=PTS-STARTPTS, scale='+str(my_h) +
-          'x'+str(my_w) +
-          ',  format=yuva420p,colorchannelmixer=aa=0.5[bottom];  [top][bottom]overlay=shortest=1"  -c:a aac -vcodec libx264 '+my_videooutputmerge)
+my_command = my_ffmpeg+'  -y  -i '+my_videoinput+' -i ' + my_videooutput + ' -filter_complex "  [0:v]setpts=PTS-STARTPTS, scale='+str(my_h) + 'x' + str(my_w)+'[top]; [1:v]setpts=PTS-STARTPTS, scale='+str(
+    my_h) + 'x'+str(my_w) + ',  format=yuva420p,colorchannelmixer=aa=0.5[bottom];  [top][bottom]overlay=shortest=1"  -c:a aac -vcodec libx264 '+my_videooutputmerge
+print("The command (2) : "+my_command)
+os.system(my_command)
 
 print("6-(optionnal) Compress video")
 
-os.system(my_ffmpeg+' -i '+my_videooutputmerge +
+os.system(my_ffmpeg+' -y  -i '+my_videooutputmerge +
           ' -vcodec libx265 -crf 28 '+my_videooutputmergecompress)
-os.system(my_ffmpeg+' -i '+my_videooutput +
+os.system(my_ffmpeg+' -y  -i '+my_videooutput +
           ' -vcodec libx265 -crf 28 '+my_videooutputcompress)
 
 end_time = int(time.time())
 
+print("--------------------------------------------------------")
+print('Resolution : ' + str(my_h) + ' x '+str(my_w))
+file_stats = os.stat(my_videooutputmerge2)
+print('File Size '+my_videooutputmerge2+' in MegaBytes is %d ' %
+      (file_stats.st_size / (1024 * 1024)))
+file_stats = os.stat(my_videooutputmergecompress2)
+print('File Size '+my_videooutputmergecompress2+' in MegaBytes is %d ' %
+      (file_stats.st_size / (1024 * 1024)))
+file_stats = os.stat(my_videooutput2)
+print('File Size '+my_videooutput2+' in MegaBytes is %d ' %
+      (file_stats.st_size / (1024 * 1024)))
+file_stats = os.stat(my_videooutputcompress2)
+print('File Size '+my_videooutputcompress2+' in MegaBytes is %d ' %
+      (file_stats.st_size / (1024 * 1024)))
+print("End (%d sec)" % (end_time-start_time))
+print("--------------------------------------------------------")
+
 if platform.system() == "Windows":
     window.mainloop()
-
-print("End (%d sec)"% (end_time-start_time))
