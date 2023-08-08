@@ -4,6 +4,8 @@ Software for adding a HUD to scuba diving video. HUD data is retrieved from the 
 
 Do not hesitate to send comments or screenshots on my Mastodon (https://mastodon.social/@joseph_arias) ! 
 
+![](image.png)
+
 ## How to use ?
 
 It's necessary to run command :
@@ -11,7 +13,7 @@ It's necessary to run command :
 python3 CreateBgForVideoWithFFMEG.py
 ```
 
-For 1h of .csv data, a 6 Go video is created so you need to have storage.
+For 1h of .csv data, a 200 Mo video is created so you need to have storage.
 
 For now, parameters aren't dynamicals, it's necesary to modify the source.
 
